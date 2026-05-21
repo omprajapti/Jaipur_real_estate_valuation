@@ -7,6 +7,17 @@ st.set_page_config(page_title="Jaipur AI Property Valuator", layout="centered")
 
 @st.cache_resource
 def load_model():
+    # If the model file doesn't exist in the cloud server yet, train it on the spot!
+    if not os.path.exists("model.pkl"):
+        st.info("⚙️ Model file not found in the cloud server environment. Running training pipeline automatically...")
+        try:
+            import train_model
+            train_model.train_valuation_model() # This generates model.pkl right inside the server container
+            st.success("✅ Training complete! Model loaded successfully.")
+        except Exception as e:
+            st.error(f"Failed to auto-train model: {e}")
+            return None
+            
     try:
         with open("model.pkl", "rb") as f:
             model = pickle.load(f)
